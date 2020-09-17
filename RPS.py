@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 import random
 import pandas as pd
+import time
 
 ACTIONS = ["R", "P", "S"] # rock-paper-scissor R < P, P < S, S < R
 EPSILON = 0.1   # greedy police
@@ -34,7 +35,7 @@ def choose_action(state, q):
 
 def get_reward(mine, opponent):
   if mine == opponent:
-    return 0
+    return -1
   elif mine == "R" and opponent == "P":
     return -1
   elif mine == "P"and opponent == "S":
@@ -42,10 +43,10 @@ def get_reward(mine, opponent):
   elif mine == "S" and opponent == "R":
     return -1
   else:
-    return 1
+    return 10
   
 
-def player(prev_play, opponent_history=[]):
+def player3(prev_play, opponent_history=[]):
   global q, last_action
   if prev_play == "":
     q = build_q(3 * 1, ACTIONS) # use opponents' last 1 choice
@@ -57,6 +58,9 @@ def player(prev_play, opponent_history=[]):
     state = ACTIONS.index(prev_play)
     last_state = ACTIONS.index(opponent_history[-2]) if len(opponent_history) > 1 else 0
     reward = get_reward(last_action, prev_play)
+    # print("COMPUTER: ", prev_play)
+    # print("REWARD:", reward)
+    # time.sleep(1)
     q_target = reward + GAMMA * q.iloc[state, :].max()
     q_predict = q.loc[state, last_action]
     q.loc[last_state, last_action] += ALPHA * (q_target - q_predict)
@@ -67,3 +71,34 @@ def player(prev_play, opponent_history=[]):
     last_action = choose_action(state, q)
     # print("ACTION: ", last_action)
     return last_action
+
+def player0(prev_play, opponent_history=[]):
+  opponent_history.append(prev_play)
+  guess = "R"
+  if len(opponent_history) > 2:
+    guess = opponent_history[-2]
+  return guess # if guess != "" else "R"
+
+
+def player1(prev_play, opponent_history=[]):
+  #opponent_history.append(prev_play)
+  # guess = "R"
+  # if len(opponent_history) > 2:
+  #   guess = opponent_history[-2]
+  return "R"
+
+
+def player2(prev_play, opponent_history=[]):
+  opponent_history.append(prev_play)
+  # guess = "R"
+  # if len(opponent_history) > 2:
+  #   guess = opponent_history[-2]
+  return random.choice(ACTIONS)
+
+
+def player(*args, **kwargs):
+  # return player0(*args, **kwargs)
+  # return player1(*args, **kwargs)
+  # return player2(*args, **kwargs)
+  return player3(*args, **kwargs)
+  # return player4(*args, **kwargs)
