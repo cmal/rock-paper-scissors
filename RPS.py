@@ -5,11 +5,12 @@ import pandas as pd
 import time
 
 ACTIONS = ["R", "P", "S"] # rock-paper-scissor R < P, P < S, S < R
-EPSILON = 0.1   # greedy police
+EPSILON = 0   # greedy police
 ALPHA = 0.1     # learning rate
-GAMMA = 0.9    # discount factor
-MAX_EPISODES = 13   # maximum episodes
-FRESH_TIME = 0.3    # fresh time for one move
+# GAMMA = 0.9    # discount factor
+GAMMA = 1    # discount factor
+# MAX_EPISODES = 13   # maximum episodes
+# FRESH_TIME = 0.3    # fresh time for one move
 
 def build_q(n_states, actions):
     table = pd.DataFrame(
