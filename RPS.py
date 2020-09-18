@@ -50,7 +50,7 @@ def choose_action(state, q):
 
 def get_reward(mine, opponent):
   if mine == opponent:
-    return 0.1
+    return 0.3
   elif mine == "R" and opponent == "P":
     return -0.1
   elif mine == "P"and opponent == "S":
@@ -86,6 +86,7 @@ def player3(prev_play, opponent_history=[]):
     # print("REWARD: ", reward)
     # time.sleep(1)
 
+
     # off-policy, q-learning
     #q_target = reward + GAMMA * q.iloc[state, :].max()
 
@@ -101,13 +102,13 @@ def player3(prev_play, opponent_history=[]):
     # if len(opponent_history) % 500 == 0:
     #   print(q)
 
-    # after updated q
-
     # off policy
     # last_action = choose_action(state, q)
+
     # on policy
     last_action = action
     
+
     # print("ACTION: ", last_action)
     return last_action
 
