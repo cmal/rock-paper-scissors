@@ -46,11 +46,19 @@ def choose_action(state, q):
       #   # print("use random largest 2", action, state_actions[state_actions != state_actions.argmax()])
       #   action = next_action
 
+      # random, notwork
+      # if (state_actions < 0).all():
+      #     action = state_actions.idxmax()
+      # else:
+      #     action = np.random.choice(ACTIONS)
+      #     while state_actions[action] < 0:
+      #         action = np.random.choice(ACTIONS)
+
     return action
 
 def get_reward(mine, opponent):
   if mine == opponent:
-    return 0.3
+    return 0.0
   elif mine == "R" and opponent == "P":
     return -0.1
   elif mine == "P"and opponent == "S":
@@ -60,7 +68,7 @@ def get_reward(mine, opponent):
   else:
     return 0.3
 
-OLD = 3
+OLD = 2
 STATE_SPACE = [''.join(pair) for pair in product(["R", "P", "S"], repeat=OLD)]
 
 def get_state_index(last_two):
