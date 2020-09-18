@@ -107,7 +107,6 @@ def player3(prev_play, opponent_history=[]):
 
     # on policy
     last_action = action
-    
 
     # print("ACTION: ", last_action)
     return last_action
