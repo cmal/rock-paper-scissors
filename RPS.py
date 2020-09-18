@@ -85,7 +85,14 @@ def player3(prev_play, opponent_history=[]):
     # print("LAST_ACTION: ", last_action)
     # print("REWARD: ", reward)
     # time.sleep(1)
-    q_target = reward + GAMMA * q.iloc[state, :].max()
+
+    # off-policy, q-learning
+    # q_target = reward + GAMMA * q.iloc[state, :].max()
+
+    # on-policy, sarsa
+    q_target = reward + GAMMA * q.ilock[state, last_action]
+
+
     q_predict = q.loc[state, last_action]
     # print((q_target - q_predict))
     q.loc[last_state, last_action] += ALPHA * (q_target - q_predict)
