@@ -87,6 +87,7 @@ def abbey(prev_opponent_play,
     }
     prediction = max(sub_order, key=sub_order.get)[-1:]
     ideal_response = {'P': 'S', 'R': 'P', 'S': 'R'}
+    # print('sub_order', sub_order, 'prediction', prediction, 'guess', ideal_response[prediction])
     return ideal_response[prediction]
 
 

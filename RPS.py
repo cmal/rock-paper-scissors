@@ -61,7 +61,7 @@ def get_reward(mine, opponent):
     return 0.0
   elif mine == "R" and opponent == "P":
     return -0.1
-  elif mine == "P"and opponent == "S":
+  elif mine == "P" and opponent == "S":
     return -0.1
   elif mine == "S" and opponent == "R":
     return -0.1
