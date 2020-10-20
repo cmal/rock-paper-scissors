@@ -56,10 +56,8 @@ def kris(prev_opponent_play):
     ideal_response = {'P': 'S', 'R': 'P', 'S': 'R'}
     return ideal_response[prev_opponent_play]
 
-
-def abbey(prev_opponent_play,
-          opponent_history=[],
-          play_order=[{
+abbey_state = []
+play_order=[{
               "RR": 0,
               "RP": 0,
               "RS": 0,
@@ -69,11 +67,27 @@ def abbey(prev_opponent_play,
               "SR": 0,
               "SP": 0,
               "SS": 0,
-          }]):
+          }]
+def abbey(prev_opponent_play,
+          re_init=False):
     if not prev_opponent_play:
         prev_opponent_play = 'R'
-    opponent_history.append(prev_opponent_play)
-    last_two = "".join(opponent_history[-2:])
+    global abbey_state, play_order
+    if re_init:
+        abbey_state = []
+        play_order=[{
+              "RR": 0,
+              "RP": 0,
+              "RS": 0,
+              "PR": 0,
+              "PP": 0,
+              "PS": 0,
+              "SR": 0,
+              "SP": 0,
+              "SS": 0,
+          }]
+    abbey_state.append(prev_opponent_play)
+    last_two = "".join(abbey_state[-2:])
     if len(last_two) == 2:
         play_order[0][last_two] += 1
     potential_plays = [
@@ -88,6 +102,9 @@ def abbey(prev_opponent_play,
     prediction = max(sub_order, key=sub_order.get)[-1:]
     ideal_response = {'P': 'S', 'R': 'P', 'S': 'R'}
     # print('sub_order', sub_order, 'prediction', prediction, 'guess', ideal_response[prediction])
+    # if len(abbey_state) < 5:
+    #     print(abbey_state)
+    # print('last_two', last_two, 'choose', ideal_response[prediction], 'sub_order', sub_order)
     return ideal_response[prediction]
 
 

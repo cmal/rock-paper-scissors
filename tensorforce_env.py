@@ -2,6 +2,7 @@ from tensorforce.environments import Environment
 from tensorforce.agents import Agent
 from RPS_game import play, mrugesh, abbey, quincy, kris, human, random_player
 import numpy as np
+from collections import defaultdict
 
 ACTIONS = ["R", "P", "S"]
 games = 1000
@@ -12,17 +13,16 @@ class RockPaperScissorsEnvironment(Environment):
         self.timestep = 0
         self.prev_opponent_play = 0
         self.prev_actions = 0
-        self.results = {"win": 0, "lose": 0, "tie": 0}
+        self.prev_plays = defaultdict(int)
         self.opponent = None
         # self.init_state = -np.zeros((dim,), dtype=int)
-        self.init_state = np.zeros(9, dtype=float)
+        self.init_state = np.ones(3, dtype=float) * 1.0 / 3.0
         self.state = np.copy(self.init_state)
         super().__init__()
 
 
-    def states(self):
-        return dict(type='float', shape=(9,), min_value=0.0, max_value=1000.0)
-
+    def states(self):  # observations
+        return dict(type='float', shape=(3,), min_value=0.0, max_value=1.0)
 
     def actions(self):
         return dict(type='int', num_values=3)
@@ -47,54 +47,39 @@ class RockPaperScissorsEnvironment(Environment):
         # return self.current_temp
         # print('reset', self.init_state)
         self.timestep = 0
-        self.results = {"win": 0, "lose": 0, "tie": 0}
+        self.prev_plays = defaultdict(int)
         self.state = np.copy(self.init_state) # reset() 的返回值应该赋值给 states
         return self.state
 
 
     def calc_reward(self, actions, play):
+        if self.timestep % games == games - 1:
+            # print(self.prev_plays)
+            pass
         if actions == play:
-            self.results['tie'] += 1
             return 0
         elif actions == 0 and play == 1:
-            self.results['lose'] += 1
             return -0.3
         elif actions == 1 and play == 2:
-            self.results['lose'] += 1
             return -0.3
         elif actions == 2 and play == 0:
-            self.results['lose'] += 1
             return -0.3
         elif (actions == 1 and play == 0) or (actions == 2 and play == 1) or (actions == 0 and play == 2):
-            self.results['win'] += 1
             return 0.3
         else:
             print('calc_reward something get wrong', actions, play)
 
-        if self.timestep % games == games - 1:
-            print(self.results)
-            self.results = {"win": 0, "lose": 0, "tie": 0}
-
-
-    # def change_opponent(self):
-    #     # self.opponent = [quincy, abbey, kris, mrugesh][self.timestep // games]
-    #     self.opponent = quincy
-    #     # print('switch opponents to', self.opponent.__name__)
-
     def opponent_play(self):
-        return ACTIONS.index(self.opponent(ACTIONS[self.prev_actions]))
+        re_init = (self.timestep == 0)
+        return ACTIONS.index(self.opponent(ACTIONS[self.prev_actions], re_init=re_init))
 
-    # def update_state(self, timestep, opponent_play, actions):
-    #     for i in range(dim-1):
-    #       self.state[i] = self.state[i + 1]
-    #     # self.state[dim - 1] = opponent_play
-    #     self.state[dim-1] = actions
-
-    # def update_state(self, timestep, opponent_play, actions):
-    #     self.state[timestep] = actions
-
-    def update_state(self, timestep, opponent_play, actions):
-        self.state[self.prev_actions * 3 + actions] += 1.0
+    def calc_state(self, timestep, opponent_play, actions):
+        a = self.prev_plays[self.prev_actions * 3]
+        b = self.prev_plays[self.prev_actions * 3 + 1]
+        c = self.prev_plays[self.prev_actions * 3 + 2]
+        s = a + b + c
+        # print(a,b,c,s)
+        self.state = np.array([float(a)/s, float(b)/s, float(c)/s]) if s else np.copy(self.init_state)
 
     def execute(self, actions):
         ## Check the action is either 0 or 1 -- heater on or off.
@@ -105,7 +90,9 @@ class RockPaperScissorsEnvironment(Environment):
         opponent_play = self.opponent_play()
 
         ## Compute the reward
+        self.prev_plays[self.prev_actions * 3 + actions] += 1
         reward = self.calc_reward(actions, opponent_play)
+        # print(reward)
 
         ## The only way to go terminal is to exceed max_episode_timestamp.
         ## terminal == False means episode is not done
@@ -113,7 +100,7 @@ class RockPaperScissorsEnvironment(Environment):
         terminal = False
 
         # self.state[self.step % games] = opponent_play
-        self.update_state(self.timestep - 1, opponent_play, actions)
+        self.calc_state(self.timestep, opponent_play, actions)
         self.prev_actions = actions
         self.prev_opponent_play = opponent_play
         self.timestep += 1
@@ -163,9 +150,9 @@ if __name__ == "__main__":
         #   dict(type='dense', size=dim, activation='tanh'),
         #   dict(type='dense', size=8, activation='tanh'),
         # ],
-        distributions=dict(
-          float=dict(type='categorical'),
-        ),
+        # distributions=dict(
+        #   float=dict(type='categorical'),
+        # ),
         # temperature=dict(
         #   type='decaying',
         #   decay='exponential',
@@ -191,12 +178,17 @@ if __name__ == "__main__":
     )
     evaluate(environment, agent, states)
     for _ in range(200):
+        sum_reward = 0.0
         states = environment.reset()
         terminal = False
         while not terminal and environment.timestep < games:
+            # print('observe state', states)
             actions = agent.act(states=states)
+            # print('chose actions:', actions)
             states, terminal, reward = environment.execute(actions=actions)
             agent.observe(terminal=terminal, reward=reward)
+            sum_reward += reward
+        print('sum_reward', sum_reward)
 
     states = environment.reset()
     evaluate(environment, agent, states)
