@@ -24,7 +24,7 @@ EP_STEP = 1000           # maximum episode steps
 GENERATION_EP = 10      # evaluate by the minimum of 10-episode rewards
 TRAINING = True         # training or testing
 CHECKPOINT = 50          # test on this checkpoint
-MAX_GENERATION = 1000       # train how many generations
+MAX_GENERATION = 100000       # train how many generations
 
 def eval_genomes(genomes, config):
     for genome_id, genome in genomes:
@@ -70,16 +70,18 @@ def run():
 
 
 def evaluation():
+    CHECKPOINT = 1759
     p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-%i' % CHECKPOINT)
     winner = p.run(eval_genomes, 1)     # find the winner in restored population
 
     # show winner net
     # node_names = {-1: 'In0', -2: 'In1', -3: 'In3', -4: 'In4', 0: 'act1', 1: 'act2'}
     # visualize.draw_net(p.config, winner, True, node_names=node_names)
-    node_names = {-1:'A', -2: 'B', 0:'A XOR B'}
-    visualize.draw_net(config, winner, True, node_names=node_names)
-    # visualize.plot_stats(stats, ylog=False, view=True)
-    # visualize.plot_species(stats, view=True)
+    node_names = {-1:'A', -2: 'B', -3: 'C', -4: 'D', 0:'a', 1: 'b', 2: 'c', 3: 'd'}
+    visualize.draw_net(p.config, winner, True, node_names=node_names)
+    stats = neat.StatisticsReporter()
+    visualize.plot_stats(stats, ylog=False, view=True)
+    visualize.plot_species(stats, view=True)
 
     net = neat.nn.FeedForwardNetwork.create(winner, p.config)
     # net = neat.nn.RecurrentNetwork.create(winner, p.config)
