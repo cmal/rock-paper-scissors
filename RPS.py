@@ -60,7 +60,7 @@ def get_reward(mine, opponent):
   else:
     return 0.3
 
-OLD = 3
+OLD = 50
 STATE_SPACE = [''.join(pair) for pair in product(["R", "P", "S"], repeat=OLD)]
 
 def get_state_index(last_two):
